@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Influence Coach</title>
+<meta name="description" content="Personal persuasion coach grounded in Cialdini's Influence.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161D27" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Coach">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <span class="dot" aria-hidden="true"></span>
+      <div><b>Influence Coach</b><small>Grounded in Cialdini, <i>Influence</i></small></div>
+    </div>
+    <nav class="tabs" aria-label="Modes">
+      <a href="#learn" data-tab="learn">Learn</a>
+      <a href="#simulate" data-tab="simulate">Simulate</a>
+      <a href="#progress" data-tab="progress">Progress</a>
+    </nav>
+    <button class="iconbtn" id="voiceToggle" aria-pressed="true" title="Read coach replies aloud">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path id="waves" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+      <span id="voiceLabel">Voice on</span>
+    </button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="aiBanner" class="banner" hidden></div>
+
+  <section class="view" id="view-gate" hidden aria-labelledby="gateH">
+    <form class="gate" id="gateForm" autocomplete="on">
+      <span class="dot big" aria-hidden="true"></span>
+      <h1 id="gateH">Influence Coach</h1>
+      <p>Private practice room. Enter your access code.</p>
+      <div class="field">
+        <label for="gateCode">Access code</label>
+        <input type="password" id="gateCode" autocomplete="current-password" required>
+      </div>
+      <button class="btn" type="submit" id="gateBtn">Enter</button>
+      <div class="errline" id="gateErr" role="alert"></div>
+    </form>
+  </section>
+
+  <!-- LEARN -->
+  <section class="view" id="view-learn" aria-labelledby="learnH">
+    <div class="hero">
+      <div>
+        <div class="label">Learn mode</div>
+        <h1 id="learnH">Make the six principles <em>automatic</em>, for you and against you.</h1>
+        <p>Pick a principle, an exercise and the arena you'll use it in. The coach builds drills from <i>Influence</i>, draws them out, scores your answers and talks you through it.</p>
+      </div>
+      <div class="deck" aria-label="Diagram: a trigger feature sets off a click, whirr automatic response">
+        <svg viewBox="0 0 560 250" role="img">
+          <title>Trigger, click whirr, automatic yes</title>
+          <rect x="1" y="1" width="558" height="248" rx="10" style="fill:var(--surface-2);stroke:none"/>
+          <!-- trigger -->
+          <circle class="pulse" cx="86" cy="104" r="34" style="fill:none;stroke:var(--accent);stroke-width:2"/>
+          <circle cx="86" cy="104" r="34" style="fill:var(--surface);stroke:var(--accent);stroke-width:2"/>
+          <text x="86" y="100" text-anchor="middle" style="fill:var(--ink);font:700 14px var(--f-body)">Trigger</text>
+          <text x="86" y="118" text-anchor="middle" style="fill:var(--muted);font:12px var(--f-mono)">“because…”</text>
+          <!-- flow 1 -->
+          <line class="flow" x1="124" y1="104" x2="196" y2="104" style="stroke:var(--muted);stroke-width:2.5"/>
+          <!-- tape deck -->
+          <rect x="200" y="58" width="160" height="92" rx="10" style="fill:var(--surface);stroke:var(--ink);stroke-width:2"/>
+          <g class="reel"><circle cx="243" cy="98" r="18" style="fill:none;stroke:var(--ink);stroke-width:2"/><line x1="243" y1="80" x2="243" y2="116" style="stroke:var(--ink);stroke-width:2"/><line x1="225" y1="98" x2="261" y2="98" style="stroke:var(--ink);stroke-width:2"/></g>
+          <g class="reel"><circle cx="317" cy="98" r="18" style="fill:none;stroke:var(--ink);stroke-width:2"/><line x1="317" y1="80" x2="317" y2="116" style="stroke:var(--ink);stroke-width:2"/><line x1="299" y1="98" x2="335" y2="98" style="stroke:var(--ink);stroke-width:2"/></g>
+          <circle class="blink" cx="346" cy="70" r="4" style="fill:var(--accent)"/>
+          <text x="280" y="138" text-anchor="middle" style="fill:var(--ink);font:700 14px var(--f-mono)">click, whirr</text>
+          <!-- flow 2 -->
+          <line class="flow" x1="364" y1="104" x2="420" y2="104" style="stroke:var(--muted);stroke-width:2.5"/>
+          <rect x="424" y="80" width="116" height="48" rx="24" style="fill:var(--ink);stroke:none"/>
+          <text x="482" y="109" text-anchor="middle" style="fill:var(--bg);font:700 14px var(--f-body)">Automatic yes</text>
+          <!-- principles -->
+          <g style="font:12px var(--f-mono)">
+            <circle cx="40" cy="192" r="5" style="fill:var(--p-reciprocation)"/><text x="50" y="196" style="fill:var(--ink)">Reciprocation</text>
+            <circle cx="206" cy="192" r="5" style="fill:var(--p-commitment)"/><text x="216" y="196" style="fill:var(--ink)">Commitment</text>
+            <circle cx="372" cy="192" r="5" style="fill:var(--p-social)"/><text x="382" y="196" style="fill:var(--ink)">Social proof</text>
+            <circle cx="40" cy="222" r="5" style="fill:var(--p-liking)"/><text x="50" y="226" style="fill:var(--ink)">Liking</text>
+            <circle cx="206" cy="222" r="5" style="fill:var(--p-authority)"/><text x="216" y="226" style="fill:var(--ink)">Authority</text>
+            <circle cx="372" cy="222" r="5" style="fill:var(--p-scarcity)"/><text x="382" y="226" style="fill:var(--ink)">Scarcity</text>
+          </g>
+          <line x1="20" y1="170" x2="540" y2="170" style="stroke:var(--line);stroke-width:1"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-h"><span class="label">Step 1</span><h2>Principle</h2></div>
+      <div class="grid-p" id="pGrid" role="radiogroup" aria-label="Principle"></div>
+    </div>
+    <div class="step">
+      <div class="step-h"><span class="label">Step 2</span><h2>Exercise</h2></div>
+      <div class="seg" id="exGrid" role="radiogroup" aria-label="Exercise"></div>
+    </div>
+    <div class="step">
+      <div class="step-h"><span class="label">Step 3</span><h2>Arena</h2></div>
+      <div class="seg" id="arGrid" role="radiogroup" aria-label="Arena"></div>
+      <div class="field" style="margin-top:12px">
+        <label for="learnDetail">Make it specific <span class="hint">(optional)</span></label>
+        <input type="text" id="learnDetail" placeholder="e.g. second-round interview for a BD role at a mid-size biotech">
+      </div>
+    </div>
+    <div class="cta-row">
+      <button class="btn" id="startLearn">Start session</button>
+      <span class="hint mono" id="learnSummary"></span>
+    </div>
+    <div class="source">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/></svg>
+      <div><b>Library: 1 source.</b> <i>Influence: The Psychology of Persuasion</i>, Robert B. Cialdini (revised edition): contrast plus six principles, each with its "How to say no" defense. The coach uses nothing else and cites chapter and pages. Notes stay on the server.</div>
+    </div>
+  </section>
+
+  <!-- SIMULATE -->
+  <section class="view" id="view-simulate" aria-labelledby="simH" hidden>
+    <div class="sim-head">
+      <div>
+        <div class="label">Simulate mode</div>
+        <h1 id="simH">Bring a real situation. Get the approach.</h1>
+        <p>Describe who you're influencing and what you need. You get a read of the situation, the principles to use honestly, a step-by-step plan with lines to say, and what to watch for if they use the same levers on you. Then rehearse it.</p>
+      </div>
+      <span class="example-tag" id="exampleTag">Filled with an example</span>
+    </div>
+    <form class="formcard" id="simForm" autocomplete="off">
+      <div class="field">
+        <label for="simArena">Arena</label>
+        <select id="simArena"></select>
+      </div>
+      <div class="field">
+        <label for="simWho">Who are you influencing?</label>
+        <input type="text" id="simWho">
+      </div>
+      <div class="field full">
+        <label for="simGoal">What do you want them to do?</label>
+        <input type="text" id="simGoal">
+      </div>
+      <div class="field full">
+        <label for="simSit">The situation</label>
+        <textarea id="simSit" rows="3"></textarea>
+      </div>
+      <div class="field">
+        <label for="simHist">What's been said or done so far</label>
+        <textarea id="simHist" rows="3"></textarea>
+      </div>
+      <div class="field">
+        <label for="simRisk">Their likely objections, your constraints</label>
+        <textarea id="simRisk" rows="3"></textarea>
+      </div>
+      <div class="cta-row full" style="margin-top:4px">
+        <button class="btn" type="submit" id="startSim">Build my approach</button>
+        <button class="btn ghost small" type="button" id="clearSim">Clear form</button>
+        <button class="btn ghost small" type="button" id="fillSim" hidden>Load example</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- PROGRESS -->
+  <section class="view" id="view-progress" aria-labelledby="progH" hidden>
+    <div class="label">Progress</div>
+    <h1 id="progH" style="font-size:clamp(26px,3.6vw,36px);font-weight:800;letter-spacing:-.02em">Where your influence is strong, and where it isn't yet.</h1>
+    <div class="stats" id="stats"></div>
+    <div class="bars" id="bars"></div>
+    <div class="cta-row" style="margin-top:14px"><button class="btn small" id="practiceWeak">Practice my weakest principle</button><span class="hint mono" id="storeNote"></span></div>
+    <div class="two">
+      <div>
+        <div class="step-h"><h2 style="font-size:20px">Sessions</h2></div>
+        <div class="hist" id="hist"></div>
+      </div>
+      <div>
+        <div class="step-h"><h2 style="font-size:20px">Settings</h2></div>
+        <div class="settings">
+          <div class="field">
+            <span style="font-weight:700;font-size:14px">Voice</span>
+            <div class="seg" role="radiogroup" aria-label="Voice engine">
+              <button class="opt" type="button" role="radio" data-engine="natural" aria-checked="true"><b>Natural</b><span>ElevenLabs studio voices</span></button>
+              <button class="opt" type="button" role="radio" data-engine="device" aria-checked="false"><b>Device</b><span>Free, built into your device</span></button>
+            </div>
+            <span class="hint" id="engineNote"></span>
+          </div>
+          <div class="field" id="naturalField">
+            <label for="elVoice">Natural voice</label>
+            <select id="elVoice"></select>
+            <input type="text" id="elCustom" placeholder="Or paste any ElevenLabs voice ID" aria-label="Custom ElevenLabs voice ID" style="margin-top:6px">
+          </div>
+          <div class="field" id="deviceField">
+            <label for="voiceSel">Device voice</label>
+            <select id="voiceSel"></select>
+            <span class="hint" id="voiceHint">Voices come from your device.</span>
+          </div>
+          <div class="field">
+            <label for="rate">Speaking speed <span class="mono" id="rateVal">1.0×</span></label>
+            <input type="range" id="rate" min="0.8" max="1.4" step="0.05" value="1">
+          </div>
+          <div class="row-inline"><button class="btn ghost small" id="testVoice" type="button">Test voice</button></div>
+          <div class="field">
+            <label for="about">About me</label>
+            <textarea id="about" rows="4" placeholder="Your role, what you sell, who you usually face. The coach uses this to tailor scenarios."></textarea>
+            <div class="row-inline"><button class="btn ghost small" id="saveAbout" type="button">Save</button><span class="saved" id="aboutSaved"></span></div>
+          </div>
+          <div class="row-inline" style="justify-content:space-between;border-top:1px solid var(--line);padding-top:12px"><span class="hint" id="svcNote">Signed in on this device.</span><button class="btn ghost small" id="signOut" type="button">Sign out</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SESSION -->
+  <section class="view" id="view-session" hidden>
+    <div class="sess-head">
+      <button class="btn ghost small" id="endSess" type="button">← Back</button>
+      <h2 id="sessTitle">Session</h2>
+      <div class="tags" id="sessTags" style="margin:0"></div>
+    </div>
+    <div class="thread" id="thread" aria-live="polite"></div>
+    <div class="composer">
+      <div class="dictate" id="listenPanel" hidden>
+        <div class="listen-row"><span class="rec" aria-hidden="true"></span><b id="listenState">Listening…</b><button class="linkbtn" type="button" id="listenStop">Done</button></div>
+        <div class="hint" id="listenHint">Speak naturally. A two-second pause ends your turn.</div>
+      </div>
+      <div class="box">
+        <button class="mic" id="micBtn" type="button" aria-pressed="false" title="Speak your answer (tap to start or stop)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+        </button>
+        <textarea id="input" rows="1" placeholder="Answer, ask, or say “debrief”…" aria-label="Your message"></textarea>
+        <button class="send" id="sendBtn" type="button" title="Send" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+      <div class="comp-meta"><label class="hf"><input type="checkbox" id="handsFree"> Hands-free conversation</label><span class="kb-hint">Enter to send · Shift+Enter for a new line</span><button class="linkbtn" id="stopBtn" type="button" hidden>Stop</button></div>
+    </div>
+  </section>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>

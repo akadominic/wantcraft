@@ -1,0 +1,11 @@
+{
+  "name": "wantcraft-influence-coach",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Influence Coach: a personal persuasion coach grounded in Cialdini's Influence.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "node scripts/dev.js"
+  }
+}
