@@ -151,7 +151,7 @@ $("#signOut").onclick = () => lock("Signed out.");
 function applyServiceNotes(){
   const n = [];
   if (!state.svc.coach) n.push("The coach isn't configured yet: add ANTHROPIC_API_KEY on the server.");
-  if (!state.svc.voice) n.push("Natural voice is off: no ElevenLabs key on the server, so the device voice is used.");
+  if (!state.svc.voice) n.push("Natural voice is off: no Fish Audio or ElevenLabs key on the server, so the device voice is used.");
   $("#svcNote").textContent = n.length ? n.join(" ") : `Signed in on this device · coach model ${state.svc.model || "default"}.`;
   renderEngine();
 }
@@ -207,7 +207,11 @@ function loadVoices(){
   sel.value = tts.voiceName;
 }
 function useNatural(){ return tts.engine === "natural" && state.svc.voice !== false; }
-function elVoiceId(){ return /^[A-Za-z0-9]{16,32}$/.test(tts.elCustom) ? tts.elCustom : tts.elVoice; }
+function isFish(){ return state.svc.voiceProvider === "fish"; }
+function elVoiceId(){
+  const custom = /^[A-Za-z0-9_-]{8,64}$/.test(tts.elCustom) ? tts.elCustom : "";
+  return isFish() ? custom : (custom || tts.elVoice);
+}
 
 let speakToken = 0, speakDone = null;
 function speaking(on){ $("#stopBtn").hidden = !on && !state.busy; document.body.classList.toggle("speaking", on); }
@@ -267,8 +271,16 @@ function renderEngine(){
   document.querySelectorAll("[data-engine]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.engine === tts.engine)));
   $("#naturalField").hidden = tts.engine !== "natural";
   $("#deviceField").hidden = tts.engine !== "device";
+  const fish = isFish();
+  $("#elVoice").hidden = fish;
+  $("#elCustom").placeholder = fish ? "Fish Audio voice ID (from a voice's page on fish.audio)" : "Or paste any ElevenLabs voice ID";
+  $("#elCustom").setAttribute("aria-label", fish ? "Fish Audio voice ID" : "Custom ElevenLabs voice ID");
+  $("#naturalHint").textContent = fish
+    ? (state.svc.defaultVoice ? "Using the server's default Fish Audio voice. Paste another voice ID to switch." : "Pick a voice on fish.audio, copy its ID from the voice's page, and paste it here.")
+    : "";
+  $("#naturalHint").hidden = !fish;
   $("#engineNote").textContent = tts.engine === "natural"
-    ? (state.svc.voice === false ? "Natural voice isn't set up on the server, so the device voice is used for now." : "Studio-quality voice. Uses your ElevenLabs credits.")
+    ? (state.svc.voice === false ? "Natural voice isn't set up on the server, so the device voice is used for now." : `Studio-quality voice from ${fish ? "Fish Audio" : "ElevenLabs"}. Uses your credits there.`)
     : "Quality depends on your device. Natural-sounding voices are listed first.";
 }
 function initVoiceSettings(){

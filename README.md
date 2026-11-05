@@ -4,7 +4,7 @@ A personal persuasion coach grounded in Robert Cialdini's *Influence: The Psycho
 
 - **Learn**: drills on each principle (lesson, spot it, use it, defend, roleplay), scored 0–5, with animated diagrams.
 - **Simulate**: describe a real situation, get a plan with exact lines, then rehearse it with the coach playing the other person.
-- **Voice**: natural ElevenLabs voices out, your microphone in, and a hands-free conversation mode for roleplays.
+- **Voice**: natural AI voices out (Fish Audio or ElevenLabs), your microphone in, and a hands-free conversation mode for roleplays.
 
 Plain static front end (`public/`) plus four small serverless functions (`api/`). No build step and no dependencies.
 
@@ -15,14 +15,16 @@ Plain static front end (`public/`) plus four small serverless functions (`api/`)
 | Key | Where | Notes |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | [console.anthropic.com](https://console.anthropic.com) → Settings → API keys | Add credits under Billing. Pay-as-you-go, separate from a Claude subscription. |
-| `ELEVENLABS_API_KEY` | [elevenlabs.io](https://elevenlabs.io) → Developers → API keys | Give it Text to Speech and Speech to Text access. Optional: without it the app falls back to the device voice. |
+| `FISH_API_KEY` | [fish.audio](https://fish.audio) → API → API keys | Recommended voice provider (cheaper). Add API credit. |
+| `FISH_VOICE_ID` | Open a voice you like on fish.audio and copy its ID from the page | The default coach voice. You can also paste a voice ID in the app's settings. |
+| `ELEVENLABS_API_KEY` | [elevenlabs.io](https://elevenlabs.io) → Developers → API keys | Alternative to Fish Audio. Give it Text to Speech and Speech to Text access. |
 | `APP_PASSCODE` | You choose | A long access code. Anyone without it is locked out, so strangers can't spend your API credits. |
 
 ### 2. Import into Vercel
 
 1. [vercel.com/new](https://vercel.com/new) → import `akadominic/wantcraft`.
 2. Framework preset: **Other**. Leave the build and output settings as they are (`vercel.json` sets them).
-3. Under **Environment Variables**, add `APP_PASSCODE`, `ANTHROPIC_API_KEY` and `ELEVENLABS_API_KEY`.
+3. Under **Environment Variables**, add `APP_PASSCODE`, `ANTHROPIC_API_KEY`, `FISH_API_KEY` and `FISH_VOICE_ID`. Without a voice key, the app uses the device voice.
 4. Click **Deploy**. You get a `*.vercel.app` link; open it and enter your access code.
 
 ### 3. Point wantcraft.io at it
@@ -42,6 +44,8 @@ The first time you tap the mic, allow microphone access.
 | Variable | Default | What it does |
 |---|---|---|
 | `COACH_MODEL` | `claude-sonnet-5-5` | Use `claude-opus-5-5` for deeper coaching at higher cost, or `claude-haiku-5-5` for speed. |
+| `TTS_PROVIDER` | automatic | `fish` or `elevenlabs`. By default Fish Audio is used if its key is set, otherwise ElevenLabs. |
+| `FISH_MODEL` | `s2.1-pro` | Fish Audio voice model. |
 | `ELEVENLABS_VOICE_ID` | Rachel | Default voice. In the app, Progress → Settings lets you pick another voice or paste any voice ID from your ElevenLabs library. |
 | `ELEVENLABS_MODEL` | `eleven_flash_v2_5` | Low-latency voice model. |
 
@@ -61,11 +65,12 @@ Node 20 or newer.
 ```
 public/          The app: index.html, app.js, styles.css, icons, manifest
 api/coach.js     Streams the coach's reply from the Claude API
-api/tts.js       Natural voice (ElevenLabs text to speech)
+api/tts.js       Natural voice (Fish Audio or ElevenLabs)
 api/stt.js       Transcription for browsers without built-in speech recognition (Firefox)
 api/check.js     Verifies the access code, reports which services are set up
 lib/prompt.js    The coach's instructions, output format and exercise rules
 lib/kb.js        The knowledge base: notes on Influence, in our own words
+lib/voice.js     Picks the voice provider
 ```
 
 - The knowledge base and instructions stay on the server and never reach the browser. They're sent as a cached system prompt, so repeat requests are cheaper.

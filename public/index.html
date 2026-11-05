@@ -186,7 +186,7 @@
           <div class="field">
             <span style="font-weight:700;font-size:14px">Voice</span>
             <div class="seg" role="radiogroup" aria-label="Voice engine">
-              <button class="opt" type="button" role="radio" data-engine="natural" aria-checked="true"><b>Natural</b><span>ElevenLabs studio voices</span></button>
+              <button class="opt" type="button" role="radio" data-engine="natural" aria-checked="true"><b>Natural</b><span>Studio-quality AI voice</span></button>
               <button class="opt" type="button" role="radio" data-engine="device" aria-checked="false"><b>Device</b><span>Free, built into your device</span></button>
             </div>
             <span class="hint" id="engineNote"></span>
@@ -195,6 +195,7 @@
             <label for="elVoice">Natural voice</label>
             <select id="elVoice"></select>
             <input type="text" id="elCustom" placeholder="Or paste any ElevenLabs voice ID" aria-label="Custom ElevenLabs voice ID" style="margin-top:6px">
+            <span class="hint" id="naturalHint" hidden></span>
           </div>
           <div class="field" id="deviceField">
             <label for="voiceSel">Device voice</label>
