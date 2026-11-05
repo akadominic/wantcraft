@@ -47,7 +47,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 8000,
+        max_tokens: 16000,
         stream: true,
         system: buildSystem(body.setup, body.about),
         messages
@@ -84,6 +84,7 @@ export default async function handler(req, res) {
         let ev;
         try { ev = JSON.parse(line.slice(5).trim()); } catch { continue; }
         if (ev.type === "content_block_delta" && ev.delta && ev.delta.type === "text_delta") res.write(ev.delta.text);
+        else if (ev.type === "message_delta" && ev.delta && ev.delta.stop_reason === "max_tokens") res.write("\n\u0000ERROR:max_tokens");
         else if (ev.type === "error") res.write(`\n\u0000ERROR:${ev.error?.type || "upstream_error"}`);
       }
     }

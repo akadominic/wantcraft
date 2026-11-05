@@ -558,6 +558,41 @@ function resumeSession(s){
   window.scrollTo(0, document.body.scrollHeight);
 }
 function safeParse(s){ try { return typeof s === "string" ? JSON.parse(s) : s; } catch { return null; } }
+// The coach replies with a JSON object, then optionally "===SVG===" and raw SVG markup.
+function splitReply(raw){
+  const i = raw.indexOf("===SVG===");
+  if (i < 0) return {json: raw, svg: ""};
+  let svg = raw.slice(i + 9).replace(/```(?:svg|xml|html)?/g, "").trim();
+  const a = svg.indexOf("<svg"), b = svg.lastIndexOf("</svg>");
+  svg = a >= 0 && b > a ? svg.slice(a, b + 6) : "";
+  return {json: raw.slice(0, i), svg};
+}
+// Finds `"key": { ... }` in possibly broken JSON and parses just that object.
+function extractObject(raw, key){
+  const k = raw.indexOf(`"${key}"`); if (k < 0) return null;
+  const start = raw.indexOf("{", k); if (start < 0) return null;
+  let depth = 0, inStr = false;
+  for (let j = start; j < raw.length; j++) {
+    const c = raw[j];
+    if (inStr) { if (c === "\\") j++; else if (c === '"') inStr = false; continue; }
+    if (c === '"') inStr = true;
+    else if (c === "{") depth++;
+    else if (c === "}" && --depth === 0) { try { return JSON.parse(raw.slice(start, j + 1)); } catch { return null; } }
+  }
+  return null;
+}
+function extractArray(raw, key){
+  const m = raw.match(new RegExp(`"${key}"\\s*:\\s*(\\[[^\\]]*\\])`));
+  if (!m) return null; try { return JSON.parse(m[1]); } catch { return null; }
+}
+// Last resort when the JSON is malformed: keep the parts that can be read.
+function salvage(raw){
+  const say = partialField(raw, "say"); if (!say || !say.text.trim()) return null;
+  const speak = partialField(raw, "speak");
+  const data = {say: say.text, speak: speak ? speak.text : "", principles: extractArray(raw, "principles") || [], feedback: extractObject(raw, "feedback"), choices: extractArray(raw, "choices") || [], expects: "text", done: /"done"\s*:\s*true/.test(raw), plan: extractObject(raw, "plan"), visual: extractObject(raw, "visual")};
+  data.salvaged = true;
+  return data;
+}
 function parseLoose(raw){
   const t = raw.trim();
   try { return JSON.parse(t); } catch {}
@@ -585,8 +620,11 @@ function historyForModel(s){
   return s.turns.map(t => {
     if (t.role !== "assistant") return {role:"user", content:t.content};
     const d = safeParse(t.content);
-    if (d && d.visual) d.visual = {title:d.visual.title, caption:d.visual.caption, svg:"[drawn]"};
-    return {role:"assistant", content: d ? JSON.stringify(d) : t.content};
+    if (!d) return {role:"assistant", content:t.content};
+    delete d.salvaged;
+    const hadSvg = d.visual && d.visual.svg;
+    if (d.visual) d.visual = {title:d.visual.title || "", caption:d.visual.caption || ""};
+    return {role:"assistant", content: JSON.stringify(d) + (hadSvg ? "\n===SVG===\n<svg><!-- diagram shown to the learner; omitted here --></svg>" : "")};
   });
 }
 function setupOf(s){ return {mode:s.mode, principle:s.principle, exercise:s.exercise, arena:s.arena, detail:s.detail, form:s.form}; }
@@ -596,6 +634,7 @@ const ERR = {
   bad_api_key:"The server's Claude API key was rejected. Check ANTHROPIC_API_KEY in Vercel.",
   not_configured:"The coach isn't set up on the server yet.",
   invalid_json:"The reply came back garbled. Press Retry.",
+  max_tokens:"That reply ran too long and was cut off. Press Retry, or ask for a shorter version.",
   network:"You seem to be offline. Check your connection, then press Retry.",
   upstream_error:"Connection hiccup. Press Retry."
 };
@@ -624,7 +663,7 @@ async function callModel(){
   let raw = "", prepared = null, preparedText = "";
   const onText = () => {
     const say = partialField(raw, "say");
-    if (say && say.text) { label.textContent = /"visual"\s*:\s*\{/.test(raw) ? "Drawing the visual…" : "Writing…"; live.innerHTML = md(say.text); }
+    if (say && say.text) { label.textContent = raw.includes("===SVG===") ? "Drawing the visual…" : "Writing…"; live.innerHTML = md(say.text); }
     if (!prepared && tts.on && useNatural()) {
       const spk = partialField(raw, "speak");
       if (spk && spk.done && spk.text.trim()) { preparedText = spk.text; prepared = fetchVoice(spk.text); prepared.catch(() => {}); }
@@ -636,11 +675,23 @@ async function callModel(){
     if (!r.ok) throw await errorFrom(r);
     const reader = r.body.getReader(); const dec = new TextDecoder();
     for (;;) { const {value, done} = await reader.read(); if (done) break; raw += dec.decode(value, {stream:true}); onText(); }
+    let errCode = "";
     const cut = raw.indexOf("\u0000ERROR:");
-    if (cut >= 0) { const code = raw.slice(cut + 7).trim(); throw {code: /overloaded|rate/.test(code) ? "rate_limited" : "upstream_error"}; }
-    data = parseLoose(raw);
-    if (!data || typeof data !== "object" || typeof data.say !== "string") throw {code:"invalid_json"};
+    if (cut >= 0) { errCode = raw.slice(cut + 7).trim(); raw = raw.slice(0, cut); }
+    const parts = splitReply(raw);
+    data = parseLoose(parts.json);
+    if (!data || typeof data !== "object" || typeof data.say !== "string") data = salvage(parts.json);
+    if (!data) throw {code: errCode === "max_tokens" ? "max_tokens" : errCode ? (/overloaded|rate/.test(errCode) ? "rate_limited" : "upstream_error") : "invalid_json"};
+    if (data.visual && typeof data.visual === "object") { if (parts.svg) data.visual.svg = parts.svg; else if (!data.visual.svg) data.visual = null; }
     if (s !== state.current) return;
+    if (data.salvaged && errCode) {
+      // Cut off mid-reply: show what arrived, but don't keep it in the conversation.
+      const partial = renderAI(Object.assign({}, data, {choices:[]}), {past:true});
+      partial.append(el("div", {class:"errline"}, ERR[errCode] || "That reply was cut off."), el("div", {class:"turn-actions"}, el("button", {class:"btn small", type:"button", onclick:() => { partial.remove(); callModel(); }}, "Retry")));
+      box.replaceWith(partial);
+      data = null;
+      return;
+    }
     s.turns.push({role:"assistant", content: JSON.stringify(trimForStore(data))});
     if (data.feedback && typeof data.feedback.score === "number") s.scores.push({p:(data.principles || [])[0] || (s.principle !== "mix" ? s.principle : "contrast"), s:Math.max(0, Math.min(5, Math.round(data.feedback.score))), t:Date.now()});
     for (const p of data.principles || []) if (PMAP[p] && !s.seen.includes(p)) s.seen.push(p);
