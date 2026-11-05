@@ -213,7 +213,20 @@ function elVoiceId(){
   return isFish() ? custom : (custom || tts.elVoice);
 }
 
-let speakToken = 0, speakDone = null;
+let speakToken = 0, speakDone = null, lastVoiceError = "";
+const VOICE_ERR = {
+  bad_api_key:"Fish Audio rejected the API key. Check FISH_API_KEY in Vercel, then redeploy.",
+  out_of_credit:"Fish Audio says the account is out of credit. Add API credit on fish.audio.",
+  not_configured:"No voice key on the server. Add FISH_API_KEY in Vercel, then redeploy.",
+  rate_limited:"Fish Audio is busy right now."
+};
+// Shows why the natural voice didn't play (once per distinct reason) and records it in Settings.
+function voiceFailed(e){
+  const msg = VOICE_ERR[e?.code] || (e?.message ? `Natural voice failed: ${e.message}` : "Natural voice failed.");
+  if (msg !== lastVoiceError) flash(msg + " Using the device voice for now.");
+  lastVoiceError = msg;
+  const n = document.getElementById("voiceStatus"); if (n) { n.textContent = msg; n.hidden = false; }
+}
 function speaking(on){ $("#stopBtn").hidden = !on && !state.busy; document.body.classList.toggle("speaking", on); }
 function finishSpeak(){ const f = speakDone; speakDone = null; speaking(false); if (f) f(); }
 function fetchVoice(text){
@@ -235,8 +248,8 @@ function speak(text, prepared){
         if (my !== speakToken) { URL.revokeObjectURL(url); return; }
         player.onended = player.onerror = () => { URL.revokeObjectURL(url); if (my === speakToken) finishSpeak(); };
         player.src = url; player.playbackRate = tts.rate;
-        player.play().catch(() => { if (my === speakToken) speakDevice(text, my); });
-      }).catch(() => { if (my === speakToken) speakDevice(text, my); });
+        player.play().catch(() => { voiceFailed({message:"The browser blocked audio playback. Tap anywhere on the page, then try again."}); if (my === speakToken) speakDevice(text, my); });
+      }).catch(e => { voiceFailed(e); if (my === speakToken) speakDevice(text, my); });
     } else speakDevice(text, my);
   });
 }
