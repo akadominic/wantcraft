@@ -6,10 +6,12 @@ import { voiceProvider } from "../lib/voice.js";
 const EL_DEFAULT_VOICE = process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWAM"; // "Rachel", an ElevenLabs premade voice
 const EL_MODEL = process.env.ELEVENLABS_MODEL || "eleven_flash_v2_5";
 const FISH_MODEL = process.env.FISH_MODEL || "s2.1-pro";
+// Default coach voice when FISH_VOICE_ID isn't set in Vercel (the environment variable wins).
+export const FISH_DEFAULT_VOICE = "R7mK2vN9xP4qT8bW3yH6cF1jL5sD0a";
 
 function fishRequest(text, voice) {
   const body = { text, format: "mp3", mp3_bitrate: 128, latency: "balanced" };
-  const ref = voice || process.env.FISH_VOICE_ID;
+  const ref = voice || process.env.FISH_VOICE_ID || FISH_DEFAULT_VOICE;
   if (ref) body.reference_id = ref;
   return fetch("https://api.fish.audio/v1/tts", {
     method: "POST",
