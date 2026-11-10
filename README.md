@@ -1,6 +1,6 @@
 # Influence Coach
 
-A personal persuasion coach grounded in Robert Cialdini's *Influence: The Psychology of Persuasion*.
+A personal persuasion and negotiation coach grounded in two books: Robert Cialdini's *Influence: The Psychology of Persuasion* and Chris Voss's *Never Split the Difference*.
 
 - **Learn**: drills on each principle (lesson, spot it, use it, defend, roleplay), scored 0–5, with animated diagrams.
 - **Simulate**: describe a real situation, get a plan with exact lines, then rehearse it with the coach playing the other person.
@@ -69,7 +69,8 @@ api/tts.js       Natural voice (Fish Audio or ElevenLabs)
 api/stt.js       Transcription for browsers without built-in speech recognition (Firefox)
 api/check.js     Verifies the access code, reports which services are set up
 lib/prompt.js    The coach's instructions, output format and exercise rules
-lib/kb.js        The knowledge base: notes on Influence, in our own words
+lib/kb.js        Notes on Influence, in our own words (cited by chapter and page)
+lib/kb-voss.js   Notes on Never Split the Difference, in our own words (cited by chapter)
 lib/voice.js     Picks the voice provider
 ```
 
@@ -79,4 +80,8 @@ lib/voice.js     Picks the voice provider
 
 ## Adding sources
 
-The coach uses only `lib/kb.js`. To add a book, append its notes there in the same format and update the source rules at the top of `lib/prompt.js`, which currently restrict the coach to *Influence*. A commercial version needs rights to any book it's built on.
+The coach uses only the notes in `lib/kb.js` and `lib/kb-voss.js`. To add a book: write its notes in a new `lib/kb-<name>.js`, include it in `buildSystem` in `lib/prompt.js`, add its techniques to `PMAP` there and to `P` in `public/app.js` (with colors in `public/styles.css`), and update the source rules at the top of `IDENTITY`. A commercial version needs rights to any book it's built on.
+
+## Speed
+
+Replies show as soon as their text is ready; diagrams are drawn after the text and fill in a few seconds later, while you can already answer. Diagrams are limited to lesson openings, Simulate plans and final recaps. The system prompt and the conversation so far are cached between turns.

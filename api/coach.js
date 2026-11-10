@@ -23,6 +23,14 @@ function cleanMessages(list) {
   return trimmed;
 }
 
+// Marks the end of the conversation so the next turn can reuse it from cache
+// (the system prompt has its own breakpoint), which cuts time to first word.
+function withCacheBreakpoint(messages) {
+  return messages.map((m, i) => i === messages.length - 1
+    ? { role: m.role, content: [{ type: "text", text: m.content, cache_control: { type: "ephemeral" } }] }
+    : m);
+}
+
 export default async function handler(req, res) {
   if (!onlyPost(req, res) || !authorized(req, res)) return;
   if (!process.env.ANTHROPIC_API_KEY) return sendJson(res, 500, { error: "not_configured", message: "Set ANTHROPIC_API_KEY." });
@@ -50,7 +58,7 @@ export default async function handler(req, res) {
         max_tokens: 16000,
         stream: true,
         system: buildSystem(body.setup, body.about),
-        messages
+        messages: withCacheBreakpoint(messages)
       })
     });
   } catch (e) {

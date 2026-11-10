@@ -3,21 +3,35 @@
 
 /* ---------------- Knowledge base (summarized from the learner's copy of Influence; own words) ---------------- */
 const P = [
-  {id:"contrast", name:"Contrast", ch:"Ch. 1", pages:"pp. 1–12", gist:"Shortcuts fire on one feature. What comes first changes how the next thing looks."},
-  {id:"reciprocation", name:"Reciprocation", ch:"Ch. 2", pages:"pp. 13–42", gist:"We repay what we're given, including concessions."},
-  {id:"commitment", name:"Commitment & Consistency", ch:"Ch. 3", pages:"pp. 43–86", gist:"Once we take a stand, we act to stay consistent with it."},
-  {id:"social", name:"Social Proof", ch:"Ch. 4", pages:"pp. 87–125", gist:"Under uncertainty we copy what similar others do."},
-  {id:"liking", name:"Liking", ch:"Ch. 5", pages:"pp. 126–156", gist:"We say yes to people we know and like."},
-  {id:"authority", name:"Authority", ch:"Ch. 6", pages:"pp. 157–177", gist:"We defer to real or apparent experts, even to their symbols."},
-  {id:"scarcity", name:"Scarcity", ch:"Ch. 7", pages:"pp. 178–204", gist:"What's less available, or about to be lost, feels more valuable."},
-  {id:"mix", name:"Mix it up", ch:"All", pages:"", gist:"Random principles each round, the way real conversations go."}
+  {id:"contrast", book:"inf", name:"Contrast", ch:"Ch. 1", pages:"pp. 1–12", gist:"Shortcuts fire on one feature. What comes first changes how the next thing looks."},
+  {id:"reciprocation", book:"inf", name:"Reciprocation", ch:"Ch. 2", pages:"pp. 13–42", gist:"We repay what we're given, including concessions."},
+  {id:"commitment", book:"inf", name:"Commitment & Consistency", ch:"Ch. 3", pages:"pp. 43–86", gist:"Once we take a stand, we act to stay consistent with it."},
+  {id:"social", book:"inf", name:"Social Proof", ch:"Ch. 4", pages:"pp. 87–125", gist:"Under uncertainty we copy what similar others do."},
+  {id:"liking", book:"inf", name:"Liking", ch:"Ch. 5", pages:"pp. 126–156", gist:"We say yes to people we know and like."},
+  {id:"authority", book:"inf", name:"Authority", ch:"Ch. 6", pages:"pp. 157–177", gist:"We defer to real or apparent experts, even to their symbols."},
+  {id:"scarcity", book:"inf", name:"Scarcity", ch:"Ch. 7", pages:"pp. 178–204", gist:"What's less available, or about to be lost, feels more valuable."},
+  {id:"mixinf", book:"inf", name:"Mix: Influence", ch:"All", pages:"", gist:"A different principle each round."},
+  {id:"mirror", book:"voss", name:"Mirroring", ch:"Ch. 2", gist:"Repeat their last few words, then go quiet. They keep talking."},
+  {id:"label", book:"voss", name:"Labeling & Accusation Audit", ch:"Ch. 3", gist:"Name their feelings and fears out loud, before they do."},
+  {id:"no", book:"voss", name:"Getting to No", ch:"Ch. 4", gist:"\u201cNo\u201d makes people feel safe. Ask questions built for it."},
+  {id:"thatsright", book:"voss", name:"That's Right", ch:"Ch. 5", gist:"Summarize their world until they say \u201cThat's right.\u201d"},
+  {id:"bend", book:"voss", name:"Bending Reality", ch:"Ch. 6", gist:"Anchors, deadlines, \u201cfair\u201d and loss aversion. Never meet halfway."},
+  {id:"calibrated", book:"voss", name:"Calibrated Questions", ch:"Ch. 7", gist:"\u201cHow\u201d and \u201cWhat\u201d questions that make them solve your problem."},
+  {id:"execute", book:"voss", name:"Guarantee Execution", ch:"Ch. 8", gist:"Test the yes: Rule of Three, 7-38-55, who's behind the table."},
+  {id:"ackerman", book:"voss", name:"Bargaining & Ackerman", ch:"Ch. 9", gist:"Read their style, take a punch, offer 65-85-95-100."},
+  {id:"blackswan", book:"voss", name:"Black Swans", ch:"Ch. 10", gist:"Find the hidden fact that changes the deal."},
+  {id:"mixvoss", book:"voss", name:"Mix: Never Split", ch:"All", gist:"A different technique each round."},
+  {id:"mix", book:"both", name:"Mix it up: both books", ch:"All", pages:"", gist:"A different technique each round from either book, the way real conversations go."}
 ];
+const BOOKS = [{id:"inf", name:"Influence", by:"Robert Cialdini"}, {id:"voss", name:"Never Split the Difference", by:"Chris Voss"}];
+const isMix = id => String(id || "").startsWith("mix");
+function refOf(p){ return isMix(p.id) ? "All chapters" : p.book === "voss" ? `NSTD · ${p.ch}` : `${p.ch} · ${p.pages}`; }
 const PMAP = Object.fromEntries(P.map(p => [p.id, p]));
 const EX = [
   {id:"lesson", name:"Learn it", d:"Short animated lesson, then check questions"},
-  {id:"spot", name:"Spot it", d:"Read a real-world exchange and name the lever"},
+  {id:"spot", name:"Spot it", d:"Read a real-world exchange and name the technique"},
   {id:"craft", name:"Use it", d:"Write the line you'd say; get it scored and improved"},
-  {id:"defend", name:"Defend", d:"It's used on you. Say no well, the book's way"},
+  {id:"defend", name:"Defend", d:"It's used on you. Respond well, the books' way"},
   {id:"roleplay", name:"Roleplay", d:"Live conversation with a counterpart, then debrief"}
 ];
 const AR = [
@@ -55,13 +69,16 @@ async function errorFrom(r){ let j = {}; try { j = await r.json(); } catch {} re
 /* ---------------- Learn launcher ---------------- */
 function renderLearn(){
   const g = $("#pGrid"); g.textContent = "";
-  for (const p of P) {
-    const b = el("button", {class:"pcard", role:"radio", "aria-checked": String(state.principle === p.id), style:`--pc:var(--p-${p.id})`, type:"button", onclick:() => { state.principle = p.id; renderLearn(); }},
-      el("span", {class:"nm"}, el("span", {class:"sw"}), p.name),
-      el("span", {class:"mono ch"}, p.pages ? `${p.ch} · ${p.pages}` : "All chapters"),
+  const card = p => el("button", {class:"pcard" + (p.id === "mix" ? " wide" : ""), role:"radio", "aria-checked": String(state.principle === p.id), style:`--pc:var(--p-${p.id})`, type:"button", onclick:() => { state.principle = p.id; renderLearn(); }},
+      el("span", {class:"nm"}, el("span", {class:"sw" + (p.book === "voss" ? " dia" : "")}), p.name),
+      el("span", {class:"mono ch"}, refOf(p)),
       el("span", {class:"gist"}, p.gist));
-    g.append(b);
+  for (const bk of BOOKS) {
+    g.append(el("div", {class:"book-h"}, el("b", {}, bk.name), el("span", {}, bk.by)));
+    for (const p of P.filter(x => x.book === bk.id)) g.append(card(p));
   }
+  g.append(el("div", {class:"book-h"}, el("b", {}, "Both books")));
+  g.append(card(PMAP.mix));
   const e = $("#exGrid"); e.textContent = "";
   for (const x of EX) e.append(el("button", {class:"opt", role:"radio", type:"button", "aria-checked": String(state.exercise === x.id), onclick:() => { state.exercise = x.id; renderLearn(); }}, el("b", {}, x.name), el("span", {}, x.d)));
   const a = $("#arGrid"); a.textContent = "";
@@ -306,7 +323,7 @@ function initVoiceSettings(){
   $("#voiceSel").onchange = e => { tts.voiceName = e.target.value; ls.set("ic.voice", tts.voiceName); };
   $("#rate").value = tts.rate; $("#rateVal").textContent = Number(tts.rate).toFixed(2).replace(/0$/, "") + "×";
   $("#rate").oninput = e => { tts.rate = Number(e.target.value); ls.set("ic.rate", tts.rate); $("#rateVal").textContent = tts.rate.toFixed(2).replace(/0$/, "") + "×"; };
-  $("#testVoice").onclick = () => { const was = tts.on; tts.on = true; speak("Hi, I'm your influence coach. Let's make the six principles automatic."); tts.on = was; };
+  $("#testVoice").onclick = () => { const was = tts.on; tts.on = true; speak("Hi, I'm your influence coach. Let's get to work."); tts.on = was; };
   $("#voiceToggle").onclick = () => { tts.on = !tts.on; ls.set("ic.voiceOn", tts.on); if (!tts.on) stopSpeaking(); renderVoiceToggle(); };
   if ("speechSynthesis" in window) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
   renderVoiceToggle(); renderEngine();
@@ -418,7 +435,7 @@ function md(src){
   flushP(); flushL();
   return html;
 }
-function tag(pid){ const p = PMAP[pid]; if (!p || pid === "mix") return null; return el("span", {class:"tag", style:`--pc:var(--p-${pid})`}, el("i"), p.name); }
+function tag(pid){ const p = PMAP[pid]; if (!p || isMix(pid)) return null; return el("span", {class:"tag" + (p.book === "voss" ? " voss" : ""), style:`--pc:var(--p-${pid})`}, el("i"), p.name); }
 
 /* SVG sanitizer: allowlist elements & attributes; no scripts, links, styles blocks or events. */
 const SVG_OK = new Set(["svg","g","rect","circle","ellipse","line","polyline","polygon","path","text","tspan","title","desc","defs","lineargradient","radialgradient","stop","marker","clippath","animate","animatetransform","animatemotion","set","mpath"]);
@@ -473,12 +490,12 @@ function renderPlan(plan){
   }
   if (Array.isArray(plan.sequence) && plan.sequence.length) {
     const ol = el("ol", {class:"seq"});
-    for (const s of plan.sequence) ol.append(el("li", {}, el("div", {}, el("b", {}, s.step || ""), PMAP[s.principle] && s.principle !== "mix" ? el("span", {class:"mono", style:"color:var(--muted);margin-left:8px"}, PMAP[s.principle].name) : null, el("div", {style:"color:var(--muted);font-size:14.5px"}, s.detail || ""))));
+    for (const s of plan.sequence) ol.append(el("li", {}, el("div", {}, el("b", {}, s.step || ""), PMAP[s.principle] && !isMix(s.principle) ? el("span", {class:"mono", style:"color:var(--muted);margin-left:8px"}, PMAP[s.principle].name) : null, el("div", {style:"color:var(--muted);font-size:14.5px"}, s.detail || ""))));
     wrap.append(el("div", {}, el("h3", {}, "Sequence"), ol));
   }
   if (Array.isArray(plan.watch_for) && plan.watch_for.length) {
     const w = el("div", {class:"watch"});
-    for (const x of plan.watch_for) { const pid = PMAP[x.principle] ? x.principle : "mix"; w.append(el("div", {style:`--pc:var(--p-${pid})`}, el("b", {}, (PMAP[pid]?.name || "") + ": "), x.sign || "", el("div", {style:"color:var(--muted);font-size:14.5px"}, "Defense: " + (x.counter || "")))); }
+    for (const x of plan.watch_for) { const pid = PMAP[x.principle] ? x.principle : "mix"; w.append(el("div", {style:`--pc:var(--p-${pid})`}, el("b", {}, (isMix(pid) ? "" : PMAP[pid]?.name || "") + ": "), x.sign || "", el("div", {style:"color:var(--muted);font-size:14.5px"}, "Defense: " + (x.counter || "")))); }
     wrap.append(el("div", {}, el("h3", {}, "If they use it on you"), w));
   }
   if (Array.isArray(plan.guardrails) && plan.guardrails.length) wrap.append(el("div", {}, el("h3", {}, "Guardrails"), el("ul", {style:"margin:0;padding-left:1.2em"}, plan.guardrails.map(g => el("li", {}, g)))));
@@ -649,8 +666,11 @@ async function sendUser(text, opts = {}){
   await callModel();
 }
 
+let callSeq = 0;
 async function callModel(){
   const s = state.current;
+  const myCall = ++callSeq;
+  const owns = () => myCall === callSeq;
   state.busy = true; $("#sendBtn").disabled = true; $("#micBtn").disabled = true; $("#stopBtn").hidden = false;
   const box = el("div", {class:"turn ai"});
   const label = el("span", {}, s.turns.length <= 1 ? "The coach is preparing your session…" : "Thinking…");
@@ -661,15 +681,48 @@ async function callModel(){
   box.scrollIntoView({block:"nearest", behavior:"smooth"});
   const ctl = new AbortController(); state.ctl = ctl;
   let raw = "", prepared = null, preparedText = "";
+  let shown = null; // the rendered turn, once the text part is complete: {node, data, index, wait}
+  const release = () => {
+    if (!owns()) return;
+    if (state.ctl === ctl) state.ctl = null;
+    state.busy = false; $("#sendBtn").disabled = false; $("#micBtn").disabled = false;
+    if (!document.body.classList.contains("speaking")) $("#stopBtn").hidden = true;
+  };
+  // Shows the reply, records it, and frees the composer. The diagram (if any) can still be on its way.
+  const show = (data, visualPending) => {
+    s.turns.push({role:"assistant", content: JSON.stringify(trimForStore(data))});
+    const index = s.turns.length - 1;
+    if (data.feedback && typeof data.feedback.score === "number") s.scores.push({p:(data.principles || [])[0] || (!isMix(s.principle) ? s.principle : "contrast"), s:Math.max(0, Math.min(5, Math.round(data.feedback.score))), t:Date.now()});
+    for (const p of data.principles || []) if (PMAP[p] && !s.seen.includes(p)) s.seen.push(p);
+    s.updatedAt = Date.now();
+    const node = renderAI(data);
+    let wait = null;
+    if (visualPending) {
+      wait = el("figure", {class:"vis pending"}, el("div", {class:"vis-wait"}, el("span", {class:"reels", "aria-hidden":"true"}, el("i"), el("i")), el("span", {}, `Drawing ${data.visual && data.visual.title ? "“" + data.visual.title + "”" : "the diagram"}…`)));
+      node.insertBefore(wait, node.querySelector(".choices") || node.querySelector(".turn-actions"));
+    }
+    box.replaceWith(node);
+    saveSession(s);
+    release();
+    afterReply(s, data, preparedText && preparedText === data.speak ? prepared : null);
+    return {node, data, index, wait};
+  };
   const onText = () => {
+    if (shown) return;
     const say = partialField(raw, "say");
-    if (say && say.text) { label.textContent = raw.includes("===SVG===") ? "Drawing the visual…" : "Writing…"; live.innerHTML = md(say.text); }
+    if (say && say.text) { label.textContent = "Writing…"; live.innerHTML = md(say.text); }
     if (!prepared && tts.on && useNatural()) {
       const spk = partialField(raw, "speak");
       if (spk && spk.done && spk.text.trim()) { preparedText = spk.text; prepared = fetchVoice(spk.text); prepared.catch(() => {}); }
     }
+    if (raw.includes("===SVG===")) {
+      const d = parseLoose(splitReply(raw).json);
+      if (d && typeof d.say === "string" && s === state.current) {
+        if (d.visual && typeof d.visual === "object") delete d.visual.svg; else d.visual = null;
+        shown = show(d, Boolean(d.visual));
+      }
+    }
   };
-  let data = null;
   try {
     const r = await api("/api/coach", {setup: setupOf(s), about: state.about, messages: historyForModel(s)}, {signal: ctl.signal});
     if (!r.ok) throw await errorFrom(r);
@@ -679,7 +732,19 @@ async function callModel(){
     const cut = raw.indexOf("\u0000ERROR:");
     if (cut >= 0) { errCode = raw.slice(cut + 7).trim(); raw = raw.slice(0, cut); }
     const parts = splitReply(raw);
-    data = parseLoose(parts.json);
+    if (shown) {
+      // Text was already shown; add the finished diagram (or drop the placeholder).
+      const v = shown.data.visual;
+      if (v && parts.svg) {
+        v.svg = parts.svg;
+        const fig = renderVisual(v);
+        if (fig && shown.wait) shown.wait.replaceWith(fig); else if (shown.wait) shown.wait.remove();
+        s.turns[shown.index] = {role:"assistant", content: JSON.stringify(trimForStore(shown.data))};
+        saveSession(s);
+      } else if (shown.wait) shown.wait.remove();
+      return;
+    }
+    let data = parseLoose(parts.json);
     if (!data || typeof data !== "object" || typeof data.say !== "string") data = salvage(parts.json);
     if (!data) throw {code: errCode === "max_tokens" ? "max_tokens" : errCode ? (/overloaded|rate/.test(errCode) ? "rate_limited" : "upstream_error") : "invalid_json"};
     if (data.visual && typeof data.visual === "object") { if (parts.svg) data.visual.svg = parts.svg; else if (!data.visual.svg) data.visual = null; }
@@ -689,16 +754,11 @@ async function callModel(){
       const partial = renderAI(Object.assign({}, data, {choices:[]}), {past:true});
       partial.append(el("div", {class:"errline"}, ERR[errCode] || "That reply was cut off."), el("div", {class:"turn-actions"}, el("button", {class:"btn small", type:"button", onclick:() => { partial.remove(); callModel(); }}, "Retry")));
       box.replaceWith(partial);
-      data = null;
       return;
     }
-    s.turns.push({role:"assistant", content: JSON.stringify(trimForStore(data))});
-    if (data.feedback && typeof data.feedback.score === "number") s.scores.push({p:(data.principles || [])[0] || (s.principle !== "mix" ? s.principle : "contrast"), s:Math.max(0, Math.min(5, Math.round(data.feedback.score))), t:Date.now()});
-    for (const p of data.principles || []) if (PMAP[p] && !s.seen.includes(p)) s.seen.push(p);
-    s.updatedAt = Date.now();
-    box.replaceWith(renderAI(data));
-    saveSession(s);
+    shown = show(data, false);
   } catch (e) {
+    if (shown) { if (shown.wait) shown.wait.remove(); return; }
     think.remove();
     if (e && (e.code === "cancelled" || ctl.signal.aborted)) { if (!live.textContent) box.remove(); else box.append(el("div", {class:"errline"}, "Stopped.")); }
     else if (e && e.code === "unauthorized") { box.remove(); }
@@ -707,16 +767,14 @@ async function callModel(){
       box.append(el("div", {class:"errline"}, msg), el("div", {class:"turn-actions"}, el("button", {class:"btn small", type:"button", onclick:() => { box.remove(); callModel(); }}, "Retry")));
     }
   } finally {
-    if (state.ctl === ctl) state.ctl = null;
-    state.busy = false; $("#sendBtn").disabled = false; $("#micBtn").disabled = false;
-    if (!document.body.classList.contains("speaking")) $("#stopBtn").hidden = true;
+    if (!shown) release();
   }
-  if (data && s === state.current) {
-    const words = data.speak || data.say;
-    await speak(words, preparedText && preparedText === data.speak ? prepared : null);
-    // Hands-free: when the coach finishes talking, start listening for the reply.
-    if (handsFree() && state.current === s && !state.busy && !(data.done && data.expects === "none")) startListening();
-  }
+}
+// Speaks the reply; in hands-free mode, listens for the answer once the coach stops talking.
+async function afterReply(s, data, prepared){
+  if (s !== state.current) return;
+  await speak(data.speak || data.say, prepared);
+  if (handsFree() && state.current === s && !state.busy && !(data.done && data.expects === "none")) startListening();
 }
 function trimForStore(d){
   const c = JSON.parse(JSON.stringify(d));
@@ -758,13 +816,15 @@ function renderProgress(){
   );
   const bars = $("#bars"); bars.textContent = "";
   const per = {};
-  for (const p of P) if (p.id !== "mix") per[p.id] = {n:0, sum:0};
+  for (const p of P) if (!isMix(p.id)) per[p.id] = {n:0, sum:0};
   for (const sc of scores) if (per[sc.p]) { per[sc.p].n++; per[sc.p].sum += sc.s; }
-  bars.append(el("div", {class:"bar", style:"font-size:12px"}, el("span", {class:"label"}, "Principle"), el("span", {class:"label"}, "Average score"), el("span", {class:"label", style:"text-align:right"}, "Reps · avg")));
+  bars.append(el("div", {class:"bar", style:"font-size:12px"}, el("span", {class:"label"}, "Technique"), el("span", {class:"label"}, "Average score"), el("span", {class:"label", style:"text-align:right"}, "Reps · avg")));
+  let lastBook = "";
   for (const p of P) {
-    if (p.id === "mix") continue;
+    if (isMix(p.id)) continue;
+    if (p.book !== lastBook) { lastBook = p.book; bars.append(el("div", {class:"bars-h"}, BOOKS.find(b => b.id === p.book).name)); }
     const d = per[p.id]; const a = d.n ? d.sum / d.n : 0;
-    bars.append(el("div", {class:"bar", style:`--pc:var(--p-${p.id})`}, el("span", {}, p.name.replace(" & Consistency", "")), el("div", {class:"track"}, el("div", {class:"fill", style:`width:${(a / 5 * 100).toFixed(0)}%`})), el("span", {class:"num"}, d.n ? `${d.n} · ${a.toFixed(1)}` : "not yet")));
+    bars.append(el("div", {class:"bar", style:`--pc:var(--p-${p.id})`}, el("span", {}, p.name.replace(" & Consistency", "").replace(" & Accusation Audit", "").replace("Bargaining & ", "")), el("div", {class:"track"}, el("div", {class:"fill", style:`width:${(a / 5 * 100).toFixed(0)}%`})), el("span", {class:"num"}, d.n ? `${d.n} · ${a.toFixed(1)}` : "not yet")));
   }
   const weakest = Object.entries(per).sort((a,b) => (a[1].n ? a[1].sum / a[1].n : -1) - (b[1].n ? b[1].sum / b[1].n : -1))[0]?.[0] || "reciprocation";
   $("#practiceWeak").textContent = `Practice ${PMAP[weakest].name}`;

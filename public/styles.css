@@ -4,7 +4,9 @@
   --accent:#C8213A; --accent-ink:#FFFFFF; --accent-soft:#FBE7EA; --focus:#2F6BFF;
   --good:#1F8A4C; --warn:#B26A00;
   --p-contrast:#5F6E82; --p-reciprocation:#0E8587; --p-commitment:#3563D6; --p-social:#2B9655;
-  --p-liking:#CF3D73; --p-authority:#7A4CE0; --p-scarcity:#C97800; --p-mix:#131B26;
+  --p-liking:#CF3D73; --p-authority:#7A4CE0; --p-scarcity:#C97800; --p-mix:#131B26; --p-mixinf:#5F6E82; --p-mixvoss:#2C6E8F;
+  --p-mirror:#1F7FA6; --p-label:#A14F2A; --p-no:#8A3D8F; --p-thatsright:#5E7F1D; --p-bend:#B3362B;
+  --p-calibrated:#2E5C8C; --p-execute:#8A6A00; --p-ackerman:#6D4C3D; --p-blackswan:#2B3442;
   --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
   --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -16,7 +18,9 @@
   --accent:#FF5A6E; --accent-ink:#1A0508; --accent-soft:#3A1820; --focus:#7FA4FF;
   --good:#53C485; --warn:#E6A33A;
   --p-contrast:#9AA9BD; --p-reciprocation:#3CC4C4; --p-commitment:#7C9EFF; --p-social:#5BCB86;
-  --p-liking:#F27AA6; --p-authority:#AE8CFF; --p-scarcity:#F2AE3D; --p-mix:#E8EDF3;
+  --p-liking:#F27AA6; --p-authority:#AE8CFF; --p-scarcity:#F2AE3D; --p-mix:#E8EDF3; --p-mixinf:#9AA9BD; --p-mixvoss:#6FB7D6;
+  --p-mirror:#5DB8DE; --p-label:#E3926B; --p-no:#CF8BD4; --p-thatsright:#A8C95E; --p-bend:#F0786C;
+  --p-calibrated:#7FA9DB; --p-execute:#E0BD4A; --p-ackerman:#C79F8C; --p-blackswan:#C3CCD8;
   --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
   color-scheme:dark }
 }
@@ -25,7 +29,9 @@
   --accent:#FF5A6E; --accent-ink:#1A0508; --accent-soft:#3A1820; --focus:#7FA4FF;
   --good:#53C485; --warn:#E6A33A;
   --p-contrast:#9AA9BD; --p-reciprocation:#3CC4C4; --p-commitment:#7C9EFF; --p-social:#5BCB86;
-  --p-liking:#F27AA6; --p-authority:#AE8CFF; --p-scarcity:#F2AE3D; --p-mix:#E8EDF3;
+  --p-liking:#F27AA6; --p-authority:#AE8CFF; --p-scarcity:#F2AE3D; --p-mix:#E8EDF3; --p-mixinf:#9AA9BD; --p-mixvoss:#6FB7D6;
+  --p-mirror:#5DB8DE; --p-label:#E3926B; --p-no:#CF8BD4; --p-thatsright:#A8C95E; --p-bend:#F0786C;
+  --p-calibrated:#7FA9DB; --p-execute:#E0BD4A; --p-ackerman:#C79F8C; --p-blackswan:#C3CCD8;
   --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
   color-scheme:dark
 }
@@ -248,3 +254,18 @@ input[type=password]{width:100%;background:var(--surface);border:1.5px solid var
 .hf input{accent-color:var(--accent);width:16px;height:16px}
 @media (max-width:600px){.kb-hint{display:none}}
 @media (prefers-reduced-motion: reduce){.rec{animation:none}}
+
+/* ---- two books ---- */
+.book-h{grid-column:1/-1;display:flex;align-items:baseline;gap:10px;margin-top:8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.book-h:first-child{margin-top:0}
+.book-h b{font-family:var(--f-display);font-size:15.5px}
+.book-h span{font-size:13px;color:var(--muted)}
+.pcard.wide{grid-column:1/-1}
+.sw.dia{border-radius:2px;transform:rotate(45deg) scale(.85)}
+.tag.voss i{border-radius:1px;transform:rotate(45deg) scale(.9)}
+.bars-h{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.bars-h:first-of-type{margin-top:0}
+
+/* ---- diagram still drawing ---- */
+figure.vis.pending{border-style:dashed}
+.vis-wait{display:flex;align-items:center;gap:10px;padding:14px;color:var(--muted);font-size:14px}
